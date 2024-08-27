@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Container, TextField, Button, IconButton, Dialog, DialogContentText, DialogActions, DialogContent, DialogTitle, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
- Paper, Typography, Box, Link, Tooltip, CircularProgress, Alert } from '@mui/material';
-import { Add, Edit, Delete, LocationOn } from '@mui/icons-material';
+import {
+    Container, TextField, Button, IconButton, Dialog, DialogContentText, DialogActions, DialogContent,
+    DialogTitle, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box,
+    Link, Tooltip, CircularProgress, Alert
+} from '@mui/material';
+import { LocationOn } from '@mui/icons-material';
 import useAuthAxios from '../../../hooks/useAuthAxios';
 import ConfirmationDialog from '../../generallyshared/ConfirmationDialog';
 import SearchBox from '../../generallyshared/SearchBox';
@@ -14,31 +17,28 @@ const Location = () => {
     const [order, setOrder] = useState('asc');
     const [open, setOpen] = useState(false);
     const [currentLocation, setCurrentLocation] = useState({});
+    const [loading, setLoading] = useState(true);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
-    const [loading, setLoading] = useState(true);
 
     const api = useAuthAxios();
 
-    // Function to fetch locations from the API
     const fetchLocations = async () => {
-        setLoading(true); // Set loading to true before fetching
+        setLoading(true);
         try {
             const response = await api.get('locations/');
-            setLocations(response.data.results); // Use results
+            setLocations(response.data.results);
         } catch (error) {
             console.error('Error fetching locations:', error);
         } finally {
-            setLoading(false); // Set loading to false after fetching
+            setLoading(false);
         }
     };
 
-    // Fetch locations on component mount
     useEffect(() => {
         fetchLocations();
     }, []);
 
-    // Update filtered locations based on search term
     useEffect(() => {
         const filtered = locations.filter(location =>
             location.name.toLowerCase().includes(search.toLowerCase())
@@ -48,11 +48,6 @@ const Location = () => {
 
     const handleSearchChange = (e) => setSearch(e.target.value);
 
-    const handleSearch = () => {
-        fetchLocations();
-    };
-
-    // Order function
     const handleOrder = () => {
         const ordered = [...filteredLocations].sort((a, b) =>
             order === 'asc'
@@ -63,7 +58,6 @@ const Location = () => {
         setOrder(order === 'asc' ? 'desc' : 'asc');
     };
 
-    // Handle open form for adding or editing
     const handleClickOpen = (location = {}) => {
         setCurrentLocation(location);
         setOpen(true);
@@ -74,36 +68,49 @@ const Location = () => {
         setCurrentLocation({});
     };
 
-    // Handle form submission
     const handleSubmit = async () => {
-        setLoading(true); // Set loading to true before saving
+        setLoading(true);
         try {
             const url = currentLocation.id
                 ? `locations/${currentLocation.id}/`
                 : 'locations/';
             const method = currentLocation.id ? 'put' : 'post';
-            await api({ method, url, data: currentLocation });
-            fetchLocations(); // Fetch locations after adding/updating
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('name', currentLocation.name);
+            formData.append('address', currentLocation.address);
+            formData.append('description', currentLocation.description);
+            formData.append('person_in_charge', currentLocation.person_in_charge);
+            formData.append('google_maps_url', currentLocation.google_maps_url);
+
+            await api({
+                method,
+                url,
+                data: formData,
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            fetchLocations();
             handleClose();
         } catch (error) {
             console.error('Error saving location:', error);
         } finally {
-            setLoading(false); // Set loading to false after saving
+            setLoading(false);
         }
     };
 
-    // Handle deletion of location
     const handleConfirmDelete = async () => {
-        setLoading(true); // Set loading to true before deleting
+        setLoading(true);
         try {
             await api.delete(`locations/${deleteId.id}/`);
-            fetchLocations(); // Fetch locations after deletion
+            fetchLocations();
             setOpenDeleteDialog(false);
             setDeleteId(null);
         } catch (error) {
             console.error('Error deleting location:', error);
         } finally {
-            setLoading(false); // Set loading to false after deleting
+            setLoading(false);
         }
     };
 
@@ -123,29 +130,22 @@ const Location = () => {
                 Location Management
             </Typography>
 
-
-            <Box display="flex" justifyContent="space-between" sx= {{ alignItems: "center", mb: 4.5 }} >
-                {/* Search and Filters Section */}
+            <Box display="flex" justifyContent="space-between" sx={{ alignItems: "center", mb: 4.5 }}>
                 <Box display="flex" alignitems="center" gap={1}>
-                    {/* Search Section */}                   
-                        <SearchBox  searchTerm={search} onSearchChange={handleSearchChange} onSearch={handleSearch} />
-                        {/* Filter Section */}
-                        <Button
-                            variant="outlined"
-                            color="primary"
-                            size="small"
-                            sx={{ height: '52px' }}
-                            onClick={handleOrder}>
-                            Order: {order === 'asc' ? 'Z-A' : 'A-Z'}
-                        </Button>
+                    <SearchBox searchTerm={search} onSearchChange={handleSearchChange} />
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        size="small"
+                        sx={{ height: '52px' }}
+                        onClick={handleOrder}>
+                        Order: {order === 'asc' ? 'Z-A' : 'A-Z'}
+                    </Button>
                 </Box>
-                <Box display="flex" alignItems="center" justifyContent="flex-end" >
+                <Box display="flex" alignItems="center" justifyContent="flex-end">
                     <AddUnitButton onClick={handleClickOpen} />
-                </Box>    
+                </Box>
             </Box>
-            <Box display="flex" alignItems="center" justifyContent="center"></Box>
-
-
 
             {loading ? (
                 <CircularProgress />
@@ -191,7 +191,6 @@ const Location = () => {
                 </TableContainer>
             )}
 
-            {/* Add/Edit Dialog */}
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>{currentLocation.id ? 'Edit Location' : 'Add Location'}</DialogTitle>
                 <DialogContent>
@@ -241,17 +240,13 @@ const Location = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* Delete Confirmation Dialog */}
-            
             <ConfirmationDialog
                 open={openDeleteDialog}
                 onClose={handleCloseDelete}
                 onConfirm={handleConfirmDelete}
                 title="Confirm Deletion"
-                message="Are you sure you want to delete this adjustment?<br /><small style='font-style: italic;'>This data will be permanently lost upon deletion.</small>"
+                message="Are you sure you want to delete this location? This action cannot be undone."
             />
-
-
         </Container>
     );
 };

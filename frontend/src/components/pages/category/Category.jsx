@@ -183,11 +183,8 @@ const Category = () => {
                                 <ViewModule /> Card View
                             </MenuItem>
                         </Select>
-
-                        <Box display="flex" alignItems="center" justifyContent="flex-end" >
-                     <AddUnitButton onClick={handleClickOpen} />
-                    </Box>    
                 </Box>
+                <AddUnitButton onClick={handleClickOpen} />   
             </Box>
             <Box display="flex" alignItems="center" justifyContent="center"></Box>
 

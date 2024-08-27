@@ -11,6 +11,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link, IconButton, Input, InputAdornment } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import useRegistration from '../../hooks/useRegistration'; // Adjust the path as necessary
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 const defaultTheme = createTheme();
 
@@ -148,8 +149,8 @@ export default function CompanyRegistration() {
 
         <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 8, mb: 4 }}>
           {'Copyright © '}
-          <Link color="inherit" href="https://mui.com/">
-            SyncStock
+          <Link component={RouterLink} to="/">
+                  {"SyncStock"}
           </Link>{' '}
           {new Date().getFullYear()}
           {'.'}

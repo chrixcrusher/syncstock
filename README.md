@@ -10,7 +10,7 @@ StockSync is a robust and user-friendly inventory management application designe
 ### **Project Structure**
 
 ```
-myproject/
+syncstock/
 │
 ├── backend/                     # Django project folder
 │   ├── myproject/
@@ -26,7 +26,7 @@ myproject/
 │   ├── package-lock.json
 │   └── vite.config.js
 │
-└── README.md                    # Project documentation
+└── README.md                   # Project documentation
 ```
 
 ### **Features**

@@ -78,9 +78,6 @@ myproject/
 7. **Category:**
    - Fields: `name`, `description`, etc.
 
-8. **Notification:**
-   - Fields: `notification_type` (low_stock, expiry), `item` (ForeignKey to InventoryItem), `alert_date`, `message`, etc.
-
 ### **Views**
 
 1. **User Authentication Views:**
